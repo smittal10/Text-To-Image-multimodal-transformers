@@ -17,7 +17,7 @@ export CUDA_HOME=/usr/local/cuda-11.1/ && cd /tmp/apex && pip install -v --disab
 cd CogView
 pip install -r requirements.txt
 cd ..
-wget "https://www.dropbox.com/s/lk78djywfdw9na1/vqvae_hard_biggerset_011.pt?dl=1" -O /content/CogView/pretrained/vqvae/vqvae_hard_biggerset_011.pt
+wget "https://www.dropbox.com/s/lk78djywfdw9na1/vqvae_hard_biggerset_011.pt?dl=1" -O CogView/pretrained/vqvae/vqvae_hard_biggerset_011.pt
 ```
 ---
 ### Model and Data Download
