@@ -19,10 +19,13 @@ from .. import utils
 from ..utils.config import get_base_config
 from ..utils.sampling import sampling, sampling_igpt
 from .tokenizer import build_tokenizer
-
+import clip
+import torch_xla.core.xla_model as xm
+from torchvision import transforms
 _MODELS = {
     'minDALL-E/1.3B': 'https://arena.kakaocdn.net/brainrepo/models/minDALL-E/57b008f02ceaa02b779c8b7463143315/1.3B.tar.gz'
 }
+import torch_xla.debug.metrics as met
 
 
 class Dalle(pl.LightningModule):
@@ -42,6 +45,21 @@ class Dalle(pl.LightningModule):
         self.config = config
         for p in self.stage1.parameters():
             p.requires_grad = False
+
+        # self.resize = transforms.Resize(size=224, interpolation=transforms.InterpolationMode.BICUBIC, max_size=None, antialias=None)
+        self.preproc_image = torch.nn.Sequential(
+            transforms.Resize(size=224, interpolation=transforms.InterpolationMode.BILINEAR, max_size=None, antialias=None),
+            transforms.CenterCrop((224,224)),
+            transforms.Normalize(mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711))
+            )
+        
+        # self.center_crop = transforms.CenterCrop((224,224))
+        self.clip_model, _preprocess = clip.load("ViT-B/32")
+        self.cosine_loss = nn.CosineEmbeddingLoss()
+        for p in self.clip_model.parameters():
+            p.requires_grad = False
+        # self.target = torch.ones(1)
+        self.register_buffer("target", torch.ones(1))
 
     @classmethod
     def from_pretrained(cls,
@@ -143,6 +161,29 @@ class Dalle(pl.LightningModule):
         loss_txt = F.cross_entropy(logits_txt.view(-1, logits_txt.shape[-1]),captions[:,1:].reshape(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
         loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
         loss = loss_txt/8 + 7*loss_img/8
+
+        #generate image
+        codes = codes.view(-1, 16, 16)
+        pixels = torch.clamp(self.stage1.decode_code(codes) * 0.5 + 0.5, 0, 1)
+        pixels = self.preproc_image(pixels)
+        texts  = self.tokenizer.decode_batch(captions.tolist())
+        text_tokens = clip.tokenize(texts).to(self.device)
+        # print(f"pixels shape: {pixels.shape}")
+
+        image_features = self.clip_model.encode_image(pixels)
+        text_features = self.clip_model.encode_text(text_tokens)
+        # target = torch.ones(1)
+
+        cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
+
+        loss = loss + cosine_sim_loss
+
+        # print(f'texts: {len(texts)},{texts}')
+        # print(f"images: {images.shape}")
+        # print(f"captions: {captions.shape}")
+        # print(f"codes: {codes.shape}")
+        # print(met.metrics_report())
+
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
         return loss
 
@@ -152,6 +193,44 @@ class Dalle(pl.LightningModule):
         loss_txt = F.cross_entropy(logits_txt.view(-1, logits_txt.shape[-1]),captions[:,1:].reshape(-1))
         loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1))
         loss = loss_txt/8 + 7*loss_img/8
+
+        #generate image
+        codes = codes.reshape(-1, 16, 16)
+        pixels = torch.clamp(self.stage1.decode_code(codes) * 0.5 + 0.5, 0, 1)
+        # xm.master_print('before preproc')
+        # xm.master_print(f"pixels shape: {pixels.shape}")
+        # xm.master_print(f"pixels type: {pixels.dtype}")
+        # xm.master_print(f"pixels device: {pixels.get_device()}")
+        # xm.master_print(f"pixels: {pixels.reshape(-1)}")
+        # xm.master_print('before preproc')
+        # pixels = self.resize(pixels)
+        # xm.master_print('after resize-before crop')
+        # pixels = self.center_crop(pixels)
+        # xm.master_print('after resize')
+
+        pixels = self.preproc_image(pixels)
+        print(f"Is the error after pixels preproc")
+
+        texts  = self.tokenizer.decode_batch(captions.tolist())
+        print(f"texts")
+        
+
+        text_tokens = clip.tokenize(texts).to(self.device)
+
+        print(f"Is the error after creating text tokens?")
+
+        # xm.master_print(f"pixels shape: {pixels.shape}")
+        # xm.master_print(f'texts: {len(texts)}')
+
+        image_features = self.clip_model.encode_image(pixels)
+        text_features = self.clip_model.encode_text(text_tokens)
+        print(f"Is the error after creating text feature?")
+
+        cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
+
+        loss = loss + cosine_sim_loss
+        # xm.master_print(met.metrics_report())
+        # exit()
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False, logger=True)
         return loss
 

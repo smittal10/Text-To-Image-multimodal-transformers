@@ -43,7 +43,7 @@ parser.add_argument('--image_root_train',type=str,default="coco/images/train2017
 parser.add_argument('--caption_json_train',type=str,default="coco/annotations/captions_train2017.json")
 parser.add_argument('--image_root_valid',type=str,default="coco/images/val2017")
 parser.add_argument('--caption_json_valid',type=str,default="coco/annotations/captions_val2017.json")
-parser.add_argument('--result_path',type=str,default='saved_models/GPU')
+parser.add_argument('--result_path',type=str,default='saved_models/')
 parser.add_argument('--freeze_embeddings',type=bool,default=True)
 parser.add_argument('--freeze_layers', type=bool, default=True)
 
