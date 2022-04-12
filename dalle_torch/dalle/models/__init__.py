@@ -11,7 +11,7 @@ import pytorch_lightning as pl
 from typing import Optional, Tuple
 from omegaconf import OmegaConf
 from torch.cuda.amp import autocast
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 from torch.nn import functional as F
 from .stage1.vqgan import VQGAN
 from .stage2.transformer import Transformer1d, iGPT
@@ -55,11 +55,12 @@ class Dalle(pl.LightningModule):
         
         # self.center_crop = transforms.CenterCrop((224,224))
         self.clip_model, _preprocess = clip.load("ViT-B/32")
-        self.cosine_loss = nn.CosineEmbeddingLoss()
+        # self.cosine_loss = nn.CosineEmbeddingLoss()
+        # self.logsoftmax = nn.LogSoftmax(dim=-1)
         for p in self.clip_model.parameters():
             p.requires_grad = False
-        # self.target = torch.ones(1)
-        self.register_buffer("target", torch.ones(1))
+
+
 
     @classmethod
     def from_pretrained(cls,
@@ -154,102 +155,177 @@ class Dalle(pl.LightningModule):
         pos_encoding_txt = torch.arange(N, device=device).repeat((B, 1))
         pos_encoding_img = torch.arange(M, device=device).repeat((B, 1))
         logits_img, logists_txt = self.stage2(codes, texts, pos_encoding_img, pos_encoding_txt )
-        return logits_img, logists_txt, codes
-    def training_step(self, batch, batch_idx):
-        images, captions = batch
-        logits_img, logits_txt, codes = self(images, captions)
-        loss_txt = F.cross_entropy(logits_txt.view(-1, logits_txt.shape[-1]),captions[:,1:].reshape(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
-        loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
-        loss = loss_txt/8 + 7*loss_img/8
+    
+        idx = F.gumbel_softmax(logits_img,tau=1e-8,hard=True)
+        # indices = torch.arange(logits_img.shape[-1], device=self.device).unsqueeze(0)
+        # res = (idx * indices).sum(-1).long()
 
-        #generate image
-        codes = codes.view(-1, 16, 16)
-        pixels = torch.clamp(self.stage1.decode_code(codes) * 0.5 + 0.5, 0, 1)
+        # codes_clip = res.view(-1, 16, 16)
+
+        stage1_decode = self.stage1.decode_code_diff(idx)
+
+        pixels = torch.clamp(stage1_decode * 0.5 + 0.5, 0, 1)
         pixels = self.preproc_image(pixels)
-        texts  = self.tokenizer.decode_batch(captions.tolist())
+
+        texts  = self.tokenizer.decode_batch(texts.tolist())
         text_tokens = clip.tokenize(texts).to(self.device)
-        # print(f"pixels shape: {pixels.shape}")
 
         image_features = self.clip_model.encode_image(pixels)
-        text_features = self.clip_model.encode_text(text_tokens)
-        # target = torch.ones(1)
+        text_features = self.clip_model.encode_text(text_tokens)    
 
-        cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
+        return logits_img, logists_txt, codes, image_features, text_features
 
-        loss = loss + cosine_sim_loss
+    
+    def training_step(self, batch, batch_idx):
+        images, captions = batch
+        llogits_img, logits_txt, codes, image_features, text_features = self(images, captions)
+        # loss_txt = F.cross_entropy(logits_txt.view(-1, logits_txt.shape[-1]),captions[:,1:].reshape(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
+        loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
+        # loss = loss_img
+
+        # idx = F.gumbel_softmax(logits_img,tau=1e-8,hard=True)
+        # indices = torch.arange(logits_img.shape[-1], device=self.device).unsqueeze(0)
+        # res = (idx * indices).sum(-1).long()
+
+        # # return code
+        # codes = res.view(-1, 16, 16)
+        # #generate image
+        # # codes = codes.view(-1, 16, 16)
+        # pixels = torch.clamp(self.stage1.decode_code(codes) * 0.5 + 0.5, 0, 1)
+        # pixels = self.preproc_image(pixels)
+        # texts  = self.tokenizer.decode_batch(captions.tolist())
+        # text_tokens = clip.tokenize(texts).to(self.device)
+        # # print(f"pixels shape: {pixels.shape}")
+
+        # image_features = self.clip_model.encode_image(pixels)
+        # text_features = self.clip_model.encode_text(text_tokens)
+        # # target = torch.ones(1)
+
+        # cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
+        # similarity = image_features @ text_features.T
+        similarity = torch.matmul(image_features, text_features.T)
+
+
+        # cosine_contrastive_loss = torch.negative(torch.diagonal(self.logsoftmax(similarity))).sum()
+        # labels = torch.arange(8,device=self.device)
+        labels = torch.arange(image_features.shape[0],device=self.device)
+        cosine_contrastive_loss = F.cross_entropy(similarity, labels)
+
+        loss = loss + cosine_contrastive_loss
 
         # print(f'texts: {len(texts)},{texts}')
         # print(f"images: {images.shape}")
         # print(f"captions: {captions.shape}")
         # print(f"codes: {codes.shape}")
-        # print(met.metrics_report())
+        # xm.master_print(met.metrics_report())
 
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
+        self.log("train/cosine-contrastive-loss", cosine_contrastive_loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
+
         return loss
 
     def validation_step(self, batch, batch_idx):
         images, captions = batch
-        logits_img, logits_txt, codes = self(images, captions)
-        loss_txt = F.cross_entropy(logits_txt.view(-1, logits_txt.shape[-1]),captions[:,1:].reshape(-1))
+        logits_img, logits_txt, codes, image_features, text_features = self(images, captions)
+        # loss_txt = F.cross_entropy(logits_txt.view(-1, logits_txt.shape[-1]),captions[:,1:].reshape(-1))
         loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1))
-        loss = loss_txt/8 + 7*loss_img/8
+        # loss = loss_img
 
-        #generate image
-        codes = codes.reshape(-1, 16, 16)
-        pixels = torch.clamp(self.stage1.decode_code(codes) * 0.5 + 0.5, 0, 1)
-        # xm.master_print('before preproc')
-        # xm.master_print(f"pixels shape: {pixels.shape}")
-        # xm.master_print(f"pixels type: {pixels.dtype}")
-        # xm.master_print(f"pixels device: {pixels.get_device()}")
-        # xm.master_print(f"pixels: {pixels.reshape(-1)}")
-        # xm.master_print('before preproc')
-        # pixels = self.resize(pixels)
-        # xm.master_print('after resize-before crop')
-        # pixels = self.center_crop(pixels)
-        # xm.master_print('after resize')
+        # idx = F.gumbel_softmax(logits_img,tau=1e-8,hard=True)
+        # indices = torch.arange(logits_img.shape[-1], device=self.device).unsqueeze(0)
+        # res = (idx * indices).sum(-1).long()
 
-        pixels = self.preproc_image(pixels)
-        print(f"Is the error after pixels preproc")
+        # # return code
+        # codes = res.view(-1, 16, 16)
+        # #generate image
+        # # codes = codes.reshape(-1, 16, 16)
+        # pixels = torch.clamp(self.stage1.decode_code(codes) * 0.5 + 0.5, 0, 1)
+        # # xm.master_print('before preproc')
+        # # xm.master_print(f"pixels shape: {pixels.shape}")
+        # # xm.master_print(f"pixels type: {pixels.dtype}")
+        # # xm.master_print(f"pixels device: {pixels.get_device()}")
+        # # xm.master_print(f"pixels: {pixels.reshape(-1)}")
+        # # xm.master_print('before preproc')
+        # # pixels = self.resize(pixels)
+        # # xm.master_print('after resize-before crop')
+        # # pixels = self.center_crop(pixels)
+        # # xm.master_print('after resize')
 
-        texts  = self.tokenizer.decode_batch(captions.tolist())
-        print(f"texts")
+        # pixels = self.preproc_image(pixels)
+        # # print(f"Is the error after pixels preproc")
+
+        # texts  = self.tokenizer.decode_batch(captions.tolist())
+        # # print(f"texts")
         
 
-        text_tokens = clip.tokenize(texts).to(self.device)
+        # text_tokens = clip.tokenize(texts).to(self.device)
 
-        print(f"Is the error after creating text tokens?")
+        # # print(f"Is the error after creating text tokens?")
 
-        # xm.master_print(f"pixels shape: {pixels.shape}")
-        # xm.master_print(f'texts: {len(texts)}')
+        # # xm.master_print(f"pixels shape: {pixels.shape}")
+        # # xm.master_print(f'texts: {len(texts)}')
 
-        image_features = self.clip_model.encode_image(pixels)
-        text_features = self.clip_model.encode_text(text_tokens)
-        print(f"Is the error after creating text feature?")
+        # image_features = self.clip_model.encode_image(pixels)
+        # text_features = self.clip_model.encode_text(text_tokens)
+        # # print(f"Is the error after creating text feature?")
 
-        cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
+        # # cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
+        
+        image_features = image_features /  image_features.norm(dim=-1, keepdim=True)
+        text_features  = text_features  /  text_features.norm(dim=-1, keepdim=True)
+        similarity = torch.matmul(image_features, text_features.T)
 
-        loss = loss + cosine_sim_loss
+        # cosine_contrastive_loss = torch.negative(torch.diagonal(self.logsoftmax(similarity))).sum()
+        # labels = torch.arange(len(image_features)).to(self.device)
+        labels = torch.arange(image_features.shape[0],device=self.device)
+        cosine_contrastive_loss = F.cross_entropy(similarity, labels)
+
+        loss = loss_img + cosine_contrastive_loss
         # xm.master_print(met.metrics_report())
         # exit()
+        self.log("val/cosine-contrastive-loss", cosine_contrastive_loss, on_step=False, on_epoch=True, prog_bar=False, logger=True)
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False, logger=True)
         return loss
 
     def configure_optimizers(self):
         assert self.config.optimizer.opt_type == 'adamW'
-        assert self.config.optimizer.sched_type == 'cosine'
-
+        # assert self.config.optimizer.sched_type == 'cosine'
+        print(f"opt: {self.config.optimizer.base_lr}")
         opt = torch.optim.AdamW(self.parameters(),
                                 lr=self.config.optimizer.base_lr,
                                 betas=self.config.optimizer.betas,
                                 weight_decay=self.config.optimizer.weight_decay)
-        sched = CosineAnnealingLR(opt,
-                                  T_max=self.config.optimizer.max_steps,
-                                  eta_min=self.config.optimizer.min_lr)
-        sched = {
-            'scheduler': sched,
-            'name': 'cosine'
-        }
-        return [opt], [sched]
+        # sched = CosineAnnealingLR(opt,
+        #                           T_max=self.config.optimizer.max_steps,
+        #                           eta_min=self.config.optimizer.min_lr)
+        # sched = {
+        #     'scheduler': sched,
+        #     'name': 'cosine'
+        # }
+
+        # return [opt], [sched]
+        lr_scheduler = ReduceLROnPlateau(opt, mode='min', factor=0.5, patience=0, threshold=0.01, verbose=True, min_lr=1e-7)
+        # return [opt], [lr_scheduler]
+        return {
+        "optimizer": opt,
+        "lr_scheduler": {
+            "scheduler": lr_scheduler,
+            "monitor": "val/loss",
+            "frequency": 1
+            # If "monitor" references validation metrics, then "frequency" should be set to a
+            # multiple of "trainer.check_val_every_n_epoch".
+        },
+    }
+
+    # def on_validation_end(self):
+    #     sch = self.lr_schedulers()
+
+    #     # If the selected scheduler is a ReduceLROnPlateau scheduler.
+    #     if isinstance(sch, torch.optim.lr_scheduler.ReduceLROnPlateau):
+    #         sch.step(self.trainer.callback_metrics["val/loss"])
+
 
     # def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx, optimizer_closure,
     #                    on_tpu=True, using_native_amp=False, using_lbfgs=False):

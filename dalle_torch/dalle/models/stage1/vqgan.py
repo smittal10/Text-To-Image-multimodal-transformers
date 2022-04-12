@@ -81,6 +81,15 @@ class VQGAN(nn.Module):
         dec = self.decode(quant)
         return dec
 
+    def decode_code_diff(self, code: torch.LongTensor) -> torch.FloatTensor:
+        quant = torch.matmul(code, self.quantize.embedding.weight)
+        # print(f"quant size: {quant.shape}")
+        quant = quant.view(-1,16,16,256)
+        # print(f"quant size after view: {quant.shape}")
+        quant = quant.permute(0, 3, 1, 2)
+        dec = self.decode(quant)
+        return dec
+
     def get_codes(self, x: torch.FloatTensor) -> torch.LongTensor:
         h = self.encoder(x)
         h = self.quant_conv(h)
