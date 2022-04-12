@@ -87,7 +87,7 @@ class ImageNetDataModule(pl.LightningDataModule):
                  tokenizer,
                  image_resolution: int = 256,
                  train_batch_size: int = 2,
-                 valid_batch_size: int = 32,
+                 valid_batch_size: int = 16,
                  num_workers: int = 8):
         super().__init__()
 
@@ -117,6 +117,7 @@ class ImageNetDataModule(pl.LightningDataModule):
     def setup(self, stage=None):
         self.trainset = CocoDataset(self.root_train,self.json_train,self.tokenizer,self.train_transform)
         self.validset =CocoDataset(self.root_valid,self.json_valid,self.tokenizer,self.valid_transform)
+        # self.validset = torch.utils.data.Subset(self.validset,list(range(100)))
 
     def train_dataloader(self):
         return DataLoader(self.trainset,
@@ -147,7 +148,7 @@ def setup_callbacks(config):
         save_weights_only=True,
         save_last=True
     )
-    logger = TensorBoardLogger(log_path, name="dalle")
+    logger = TensorBoardLogger(log_path, name="dalle",log_graph=True)
     # logger_img = ImageLogger()
     return checkpoint_callback, logger
 
@@ -158,6 +159,7 @@ if __name__ == '__main__':
     # Build iGPT
     model, config = Dalle.from_pretrained('1.3B')
     print(model)
+    print(config)
 
     layer_list = model.stage2.blocks
     embed_list = [model.stage2.tok_emb_img, model.stage2.tok_emb_txt, model.stage2.pos_emb_img, model.stage2.pos_emb_txt]
@@ -204,18 +206,32 @@ if __name__ == '__main__':
     config.optimizer.max_steps = len(dataset.trainset) // config.experiment.total_batch_size * config.experiment.epochs
     print("training batch size: {}".format(config.experiment.local_batch_size))
 
+    from pytorch_lightning.callbacks import LearningRateMonitor
+    lr_monitor = LearningRateMonitor(logging_interval='step')
+    # trainer = Trainer(callbacks=[lr_monitor])
+
     # Build trainer
     trainer = pl.Trainer(max_epochs=config.experiment.epochs,
                          accumulate_grad_batches=grad_accm_steps,
                          gradient_clip_val=config.optimizer.grad_clip_norm,
                          precision=16 if config.experiment.use_amp else 32,
                          gpus=None,
-                         callbacks=[ckpt_callback],
+                         callbacks=[ckpt_callback, lr_monitor],
                         #  accelerator="gpu",
                         #  devices=args.n_gpus,
                          tpu_cores=8,
                         #  strategy="ddp",
-                         logger=logger)
-    trainer.fit(model, train_dataloader, valid_dataloader)
+                         logger=logger,
+                        #  detect_anomaly=True,
+                        #  limit_train_batches=10,
+                        #  limit_val_batches=5,
+                        #  log_every_n_steps=10,
+                         )
+    # trainer.fit(model, train_dataloader, valid_dataloader)
+    # trainer.logger._log_graph = True
+    trainer.fit(model, train_dataloader,valid_dataloader)
+    #example_input_array
+
+
         
 
