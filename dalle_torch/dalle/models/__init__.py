@@ -206,8 +206,8 @@ class Dalle(pl.LightningModule):
 
         cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
 
-        # loss = loss_img + cosine_sim_loss
-        loss = cosine_sim_loss
+        loss = loss_img + 1.5*cosine_sim_loss
+        # loss = cosine_sim_loss
         # print(met.metrics_report())
 
         self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
@@ -222,8 +222,8 @@ class Dalle(pl.LightningModule):
         loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1))
         cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
 
-        # loss = loss_img + cosine_sim_loss
-        loss = cosine_sim_loss
+        loss = loss_img + 1.5*cosine_sim_loss
+        # loss = cosine_sim_loss
         # xm.master_print(met.metrics_report())
         # exit()
         self.log("val/cosine-sim-loss", cosine_sim_loss, on_step=False, on_epoch=True, prog_bar=False, logger=True)
