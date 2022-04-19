@@ -87,7 +87,7 @@ class ImageNetDataModule(pl.LightningDataModule):
                  tokenizer,
                  image_resolution: int = 256,
                  train_batch_size: int = 2,
-                 valid_batch_size: int = 8,
+                 valid_batch_size: int = 4,
                  num_workers: int = 8):
         super().__init__()
 
@@ -227,6 +227,7 @@ if __name__ == '__main__':
                         #  detect_anomaly=True,
                          limit_train_batches=10,
                          limit_val_batches=5,
+                         strategy="tpu_spawn_debug",
                         #  log_every_n_steps=10,
                          )
     # trainer.fit(model, train_dataloader, valid_dataloader)
