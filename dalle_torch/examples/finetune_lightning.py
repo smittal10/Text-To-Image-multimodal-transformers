@@ -87,7 +87,7 @@ class ImageNetDataModule(pl.LightningDataModule):
                  tokenizer,
                  image_resolution: int = 256,
                  train_batch_size: int = 2,
-                 valid_batch_size: int = 16,
+                 valid_batch_size: int = 8,
                  num_workers: int = 8):
         super().__init__()
 
@@ -158,6 +158,8 @@ if __name__ == '__main__':
 
     # Build iGPT
     model, config = Dalle.from_pretrained('1.3B')
+    # model.load_from_checkpoint("/mnt/disks/persist/experimentssaved_models_5e5_xmc_diff/last.ckpt", config=config)
+    # model.load_from_checkpoint()
     print(model)
     print(config)
 
@@ -223,13 +225,15 @@ if __name__ == '__main__':
                         #  strategy="ddp",
                          logger=logger,
                         #  detect_anomaly=True,
-                        #  limit_train_batches=10,
-                        #  limit_val_batches=5,
+                         limit_train_batches=10,
+                         limit_val_batches=5,
                         #  log_every_n_steps=10,
                          )
     # trainer.fit(model, train_dataloader, valid_dataloader)
     # trainer.logger._log_graph = True
     trainer.fit(model, train_dataloader,valid_dataloader)
+    # trainer.fit(model, train_dataloader,valid_dataloader, ckpt_path="/mnt/disks/persist/experimentssaved_models_5e5_xmc_diff/last.ckpt")
+
     #example_input_array
 
 
