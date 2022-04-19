@@ -188,10 +188,10 @@ class Dalle(pl.LightningModule):
         loss_img = F.cross_entropy(logits_img.view(-1, logits_img.shape[-1]),codes.view(-1),ignore_index=self.tokenizer.token_to_id('[PAD]'))
 
         # cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
-        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-        text_features = text_features /  text_features.norm(dim=-1, keepdim=True)
+        image_features_norm = image_features / image_features.norm(dim=-1, keepdim=True)
+        text_features_norm = text_features /  text_features.norm(dim=-1, keepdim=True)
         # similarity = image_features @ text_features.T
-        similarity = torch.matmul(image_features, text_features.T)
+        similarity = torch.matmul(image_features_norm, text_features_norm.T)
 
 
         # cosine_contrastive_loss = torch.negative(torch.diagonal(self.logsoftmax(similarity))).sum()
@@ -215,9 +215,9 @@ class Dalle(pl.LightningModule):
 
         # # cosine_sim_loss = self.cosine_loss(image_features, text_features, self.target)
         
-        image_features = image_features /  image_features.norm(dim=-1, keepdim=True)
-        text_features  = text_features  /  text_features.norm(dim=-1, keepdim=True)
-        similarity = torch.matmul(image_features, text_features.T)
+        image_features_norm = image_features /  image_features.norm(dim=-1, keepdim=True)
+        text_features_norm  = text_features  /  text_features.norm(dim=-1, keepdim=True)
+        similarity = torch.matmul(image_features_norm, text_features_norm.T)
 
         # cosine_contrastive_loss = torch.negative(torch.diagonal(self.logsoftmax(similarity))).sum()
         # labels = torch.arange(len(image_features)).to(self.device)
