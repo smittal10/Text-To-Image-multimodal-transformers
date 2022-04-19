@@ -12,7 +12,7 @@ import torch.nn as nn
 from typing import Optional, Tuple, List
 from torch.cuda.amp import autocast
 from omegaconf import OmegaConf
-from .layers import Block
+from .layers import Block, Block_with_Adapter
 
 
 class Transformer1d(nn.Module):
@@ -34,7 +34,17 @@ class Transformer1d(nn.Module):
         self.drop = nn.Dropout(hparams.embd_pdrop)
 
         # transformer blocks
-        self.blocks = [Block(ctx_len=hparams.ctx_len_img + hparams.ctx_len_txt,
+        if hparams.adapter:
+            self.blocks = [Block_with_Adapter(ctx_len=hparams.ctx_len_img + hparams.ctx_len_txt,
+                             embed_dim=hparams.embed_dim,
+                             n_heads=hparams.n_heads,
+                             mlp_bias=hparams.mlp_bias,
+                             attn_bias=hparams.attn_bias,
+                             resid_pdrop=hparams.resid_pdrop,
+                             attn_pdrop=hparams.attn_pdrop,
+                             gelu_use_approx=hparams.gelu_use_approx) for i in range(1, hparams.n_layers+1)]
+        else:
+            self.blocks = [Block(ctx_len=hparams.ctx_len_img + hparams.ctx_len_txt,
                              embed_dim=hparams.embed_dim,
                              n_heads=hparams.n_heads,
                              mlp_bias=hparams.mlp_bias,
