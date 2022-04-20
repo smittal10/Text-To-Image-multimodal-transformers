@@ -174,7 +174,7 @@ if __name__ == '__main__':
         #         param.requires_grad = False
         #     print ("Froze Layer: ", layer_idx)
     # sys.exit()
-        for p in model.stage2.parametrs()
+        for p in model.stage2.parameters():
             p.requires_grad = False
         for name,p in model.stage2.named_parameters():
             if 'adapter_module' in name:
