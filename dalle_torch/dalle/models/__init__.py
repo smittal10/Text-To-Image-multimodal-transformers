@@ -27,7 +27,8 @@ _MODELS = {
 
 class Dalle(pl.LightningModule):
     def __init__(self,
-                 config: OmegaConf) -> None:
+                 config: OmegaConf,
+                 adapter=False) -> None:
         super().__init__()
         self.tokenizer = None
         self.stage1 = VQGAN(n_embed=config.stage1.n_embed,
@@ -35,7 +36,8 @@ class Dalle(pl.LightningModule):
                             hparams=config.stage1.hparams)
         self.stage2 = Transformer1d(vocab_size_txt=config.stage2.vocab_size_txt,
                                     vocab_size_img=config.stage2.vocab_size_img,
-                                    hparams=config.stage2.hparams)
+                                    hparams=config.stage2.hparams,
+                                    adapter=adapter)
         self.config_stage1 = config.stage1
         self.config_stage2 = config.stage2
         self.config_dataset = config.dataset
@@ -45,7 +47,8 @@ class Dalle(pl.LightningModule):
 
     @classmethod
     def from_pretrained(cls,
-                        path: str) -> nn.Module:
+                        path: str,
+                        adapter) -> nn.Module:
         path = _MODELS[path] if path in _MODELS else path
         path = utils.realpath_url_or_path(path, root=os.path.expanduser("~/.cache/minDALL-E"))
 
@@ -53,13 +56,13 @@ class Dalle(pl.LightningModule):
         config_new = OmegaConf.load(os.path.join(path, 'config.yaml'))
         config_update = OmegaConf.merge(config_base, config_new)
 
-        model = cls(config_update)
+        model = cls(config_update, adapter)
         model.tokenizer = build_tokenizer(os.path.join(path, 'tokenizer'),
                                           context_length=model.config_dataset.context_length,
                                           lowercase=True,
                                           dropout=None)
         model.stage1.from_ckpt(os.path.join(path, 'stage1_last.ckpt'))
-        model.stage2.from_ckpt(os.path.join(path, 'stage2_last.ckpt'))
+        model.stage2.from_ckpt(os.path.join(path, 'stage2_last.ckpt'), adapter=adapter)
         return model, config_update
 
     @torch.no_grad()

@@ -156,7 +156,7 @@ if __name__ == '__main__':
     pl.seed_everything(args.seed)
 
     # Build iGPT
-    model, config = Dalle.from_pretrained('1.3B')
+    model, config = Dalle.from_pretrained('1.3B', adapter=True)
     print(model)
 
     layer_list = model.stage2.blocks
@@ -168,12 +168,17 @@ if __name__ == '__main__':
             print ("Froze Embedding Layer")
     
     if args.freeze_layers:
-        layer_indexes = list(range(0,28))
-        for layer_idx in layer_indexes:
-            for param in list(layer_list[layer_idx].parameters()):
-                param.requires_grad = False
-            print ("Froze Layer: ", layer_idx)
+        # layer_indexes = list(range(0,28))
+        # for layer_idx in layer_indexes:
+        #     for param in list(layer_list[layer_idx].parameters()):
+        #         param.requires_grad = False
+        #     print ("Froze Layer: ", layer_idx)
     # sys.exit()
+        for p in model.stage2.parametrs()
+            p.requires_grad = False
+        for name,p in model.stage2.named_parameters():
+            if 'adapter_module' in name:
+                p.requires_grad = True
 
     pytorch_total_params = sum(p.numel() for p in model.parameters())
     print("The total number of parameters are")

@@ -109,11 +109,12 @@ class Block(nn.Module):
                  attn_bias: bool,
                  resid_pdrop: bool,
                  attn_pdrop: bool,
-                 gelu_use_approx: bool):
+                 gelu_use_approx: bool,
+                 adapter: bool):
         super().__init__()
         self.ln1 = nn.LayerNorm(embed_dim)
         self.ln2 = nn.LayerNorm(embed_dim)
-
+        self.adapter = adapter
         self.attn = MultiHeadSelfAttention(ctx_len=ctx_len,
                                            embed_dim=embed_dim,
                                            n_heads=n_heads,
@@ -127,67 +128,19 @@ class Block(nn.Module):
             nn.Linear(4 * embed_dim, embed_dim, bias=mlp_bias),
             nn.Dropout(resid_pdrop),
         )
+        self.adapter_module = nn.Sequential(nn.ReLU(), nn.Linear(embed_dim, 98, bias=True), nn.ReLU(), nn.Linear(98, embed_dim, bias=True))
 
     def forward(self, x):
         x = x + self.attn(self.ln1(x))
         x = x + self.mlp(self.ln2(x))
+        if self.adapter:
+            x = self.adapter_module(x)
         return x
 
     def sample(self, x, layer_past=None):
         attn, present = self.attn(self.ln1(x), use_cache=True, layer_past=layer_past)
         x = x + attn
         x = x + self.mlp(self.ln2(x))
-        return x, present
-
-class Block_with_Adapter(nn.Module):
-
-    def __init__(self,
-                 ctx_len: int,
-                 embed_dim: int,
-                 n_heads: int,
-                 mlp_bias: bool,
-                 attn_bias: bool,
-                 resid_pdrop: bool,
-                 attn_pdrop: bool,
-                 gelu_use_approx: bool):
-        super().__init__()
-        self.ln1 = nn.LayerNorm(embed_dim)
-        self.ln2 = nn.LayerNorm(embed_dim)
-        self.adapter = adapter 
-        self.attn = MultiHeadSelfAttention(ctx_len=ctx_len,
-                                           embed_dim=embed_dim,
-                                           n_heads=n_heads,
-                                           attn_pdrop=attn_pdrop,
-                                           resid_pdrop=resid_pdrop,
-                                           attn_bias=attn_bias,
-                                           use_mask=True)
-        self.mlp = nn.Sequential(
-            nn.Linear(embed_dim, 4 * embed_dim, bias=mlp_bias),
-            GELU(gelu_use_approx),
-            nn.Linear(4 * embed_dim, embed_dim, bias=mlp_bias),
-            nn.Dropout(resid_pdrop),
-        )
-        self.adapter_down = nn.Sequential(embed_dim, 98, bias=True)
-        self.relu1 = nn.ReLU()
-        self.relu2 = nn.RelU()
-        self.adapter_up = nn.Sequential(98, embed_dim, bias=True)   
-
-    def forward(self, x):
-        x = x + self.attn(self.ln1(x))
-        x = x + self.mlp(self.ln2(x))
-        x = self.relu1(x)
-        x = self.adapter_down(x)
-        x = self.relu2(x)
-        x = self.adapter_up(x)
-
-        return x
-
-    def sample(self, x, layer_past=None):
-        attn, present = self.attn(self.ln1(x), use_cache=True, layer_past=layer_past)
-        x = x + attn
-        x = x + self.mlp(self.ln2(x))
-        x = self.relu1(x)
-        x = self.adapter_down(x)
-        x = self.relu2(x)
-        x = self.adapter_up(x)
+        if self.adapter:
+            x = self.adapter_module(x)
         return x, present
