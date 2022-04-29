@@ -17,12 +17,12 @@ caption_retrieval.py evaluates generated images and outputs Recall@1, Recall@5, 
 
 ##### To evaluate on images generated from original captions, change the following variables as:
 
-valid_dir = os.path.join(data_root, 'orig')
-imgs_path = os.path.join(data_root, 'orig_map.tsv')
+> valid_dir = os.path.join(data_root, 'orig') \
+> imgs_path = os.path.join(data_root, 'orig_map.tsv')
 
 ##### To evaluate on images generated from pertubed captions, change the following variables as:
 
-valid_dir = os.path.join(data_root, 'bt')
-imgs_path = os.path.join(data_root, 'bt_map.tsv')
+> valid_dir = os.path.join(data_root, 'bt') \
+> imgs_path = os.path.join(data_root, 'bt_map.tsv')
 
 
