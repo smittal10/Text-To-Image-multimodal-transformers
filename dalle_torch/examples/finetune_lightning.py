@@ -87,7 +87,7 @@ class ImageNetDataModule(pl.LightningDataModule):
                  tokenizer,
                  image_resolution: int = 256,
                  train_batch_size: int = 2,
-                 valid_batch_size: int = 16,
+                 valid_batch_size: int = 4,
                  num_workers: int = 8):
         super().__init__()
 
@@ -103,7 +103,7 @@ class ImageNetDataModule(pl.LightningDataModule):
 
         self.train_transform = transforms.Compose(
             [transforms.Resize(image_resolution),
-             transforms.RandomCrop(image_resolution),
+             transforms.CenterCrop(image_resolution),
              transforms.ToTensor(),
              transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]
         )
@@ -223,6 +223,7 @@ if __name__ == '__main__':
                         #  strategy="ddp",
                          logger=logger,
                         #  detect_anomaly=True,
+                        strategy="tpu_spawn_debug",
                         #  limit_train_batches=10,
                         #  limit_val_batches=5,
                         #  log_every_n_steps=10,
