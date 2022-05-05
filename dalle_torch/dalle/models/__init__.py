@@ -20,12 +20,12 @@ from ..utils.config import get_base_config
 from ..utils.sampling import sampling, sampling_igpt, cutoff_topk_logits
 from .tokenizer import build_tokenizer
 import clip
-import torch_xla.core.xla_model as xm
+# import torch_xla.core.xla_model as xm
 from torchvision import transforms
 _MODELS = {
     'minDALL-E/1.3B': 'https://arena.kakaocdn.net/brainrepo/models/minDALL-E/57b008f02ceaa02b779c8b7463143315/1.3B.tar.gz'
 }
-import torch_xla.debug.metrics as met
+# import torch_xla.debug.metrics as met
 
 
 class Dalle(pl.LightningModule):
@@ -49,7 +49,7 @@ class Dalle(pl.LightningModule):
         # self.example_input_array = (torch.zeros((1, 3, 256, 256)).to(self.device), torch.zeros((1,64)).long().to(self.device)) #to log computation graph
         # self.resize = transforms.Resize(size=224, interpolation=transforms.InterpolationMode.BICUBIC, max_size=None, antialias=None)
         self.preproc_image = torch.nn.Sequential(
-            transforms.Resize(size=224, interpolation=transforms.InterpolationMode.BILINEAR, max_size=None, antialias=None),
+            transforms.Resize(size=224, interpolation=transforms.InterpolationMode.BILINEAR),
             transforms.CenterCrop((224,224)),
             transforms.Normalize(mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711))
             )
