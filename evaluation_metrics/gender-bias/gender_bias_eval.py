@@ -19,6 +19,10 @@ parser.add_argument('--output_file_name', type=str, default='gender_eval_result'
 
 args = parser.parse_args()
 
+model_clip, preprocess_clip = clip.load("ViT-B/32")
+device = torch.device('cuda')
+model_clip.to(device=device)
+
 def gender_class(im_path):
     image = preprocess_clip(Image.open(im_path)).unsqueeze(0).to(device)
     text = clip.tokenize(["a man", "a woman"]).to(device)
