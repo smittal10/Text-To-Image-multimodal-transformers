@@ -1,0 +1,308 @@
+/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/data_loading.py:432: UserWarning: The number of training samples (1) is smaller than the logging interval Trainer(log_every_n_steps=50). Set a lower value for log_every_n_steps if you want to see logs for the training epoch.
+  rank_zero_warn(
+Epoch 0: 100%|████████████████| 2/2 [02:38<00:00, 79.10s/it, loss=5.31, v_num=0]Exception in device=TPU:0: [Errno 2] No such file or directory: '/home/saloni/t2i/minDalle_src/saved_models/GPU/24022022_040141/ckpt/dalle-mscoco-tune-epoch=00.ckpt'
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/saloni/t2i/minDalle_src/saved_models/GPU/24022022_040141/ckpt/dalle-mscoco-tune-epoch=00.ckpt'
+Exception in device=TPU:1: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Exception in device=TPU:3: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Exception in device=TPU:6: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Exception in device=TPU:4: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Exception in device=TPU:7: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Exception in device=TPU:5: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Exception in device=TPU:2: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+Traceback (most recent call last):
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+Traceback (most recent call last):
+Traceback (most recent call last):
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 329, in _mp_start_fn
+    _start_fn(index, pf_cfg, fn, args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 323, in _start_fn
+    fn(gindex, *args)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 274, in _wrapped_function
+    result = function(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 175, in new_process
+    results = trainer.run_stage()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1289, in run_stage
+    return self._run_train()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1319, in _run_train
+    self.fit_loop.run()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 145, in run
+    self.advance(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/fit_loop.py", line 234, in advance
+    self.epoch_loop.run(data_fetcher)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/base.py", line 151, in run
+    output = self.on_run_end()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 298, in on_run_end
+    self.trainer.call_hook("on_train_epoch_end")
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1495, in call_hook
+    callback_fx(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/callback_hook.py", line 93, in on_train_epoch_end
+    callback.on_train_epoch_end(self, self.lightning_module)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 321, in on_train_epoch_end
+    self.save_checkpoint(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 398, in save_checkpoint
+    self._save_none_monitor_checkpoint(trainer, monitor_candidates)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/callbacks/model_checkpoint.py", line 696, in _save_none_monitor_checkpoint
+    trainer.save_checkpoint(filepath, self.save_weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1913, in save_checkpoint
+    self.checkpoint_connector.save_checkpoint(filepath, weights_only)
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+RuntimeError: tensorflow/compiler/xla/xla_client/mesh_service.cc:364 : Failed to meet rendezvous 'torch_xla.core.xla_model.save': Socket closed (14)
+Traceback (most recent call last):
+  File "examples/finetune_lightning.py", line 218, in <module>
+    trainer.fit(model, train_dataloader, valid_dataloader)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 740, in fit
+    self._call_and_handle_interrupt(
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 685, in _call_and_handle_interrupt
+    return trainer_fn(*args, **kwargs)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 777, in _fit_impl
+    self._run(model, ckpt_path=ckpt_path)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1199, in _run
+    self._dispatch()
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/trainer/trainer.py", line 1279, in _dispatch
+    self.training_type_plugin.start_training(self)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 294, in start_training
+    return super().start_training(trainer)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/ddp_spawn.py", line 173, in start_training
+    self.spawn(self.new_process, trainer, self.mp_queue, return_result=False)
+  File "/home/saloni/.local/lib/python3.8/site-packages/pytorch_lightning/plugins/training_type/tpu_spawn.py", line 267, in spawn
+    xmp.spawn(self._wrapped_function, args=(function, args, kwargs, return_queue), **self.get_mp_spawn_kwargs())
+  File "/usr/local/lib/python3.8/dist-packages/torch_xla/distributed/xla_multiprocessing.py", line 388, in spawn
+    return torch.multiprocessing.start_processes(
+  File "/usr/local/lib/python3.8/dist-packages/torch/multiprocessing/spawn.py", line 188, in start_processes
+    while not context.join():
+  File "/usr/local/lib/python3.8/dist-packages/torch/multiprocessing/spawn.py", line 139, in join
+    raise ProcessExitedException(
+torch.multiprocessing.spawn.ProcessExitedException: process 1 terminated with exit code 17
